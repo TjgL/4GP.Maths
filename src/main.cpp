@@ -17,8 +17,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         for (auto &particle : particles) {
-            particle.move();
-            particle.render();
+            particle.update(gl::delta_time_in_seconds());
         }
     }
 }
