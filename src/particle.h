@@ -20,6 +20,8 @@ private:
     float mass = 1.f;
 
     glm::vec2 direction = { 0, 0 };
+
+    float age;
 };
 
 
