@@ -18,6 +18,7 @@ float easeInOut(float x, float power)
 
 struct HitInfo {
     glm::vec2 position;
+    glm::vec2 normal;
 };
 
 struct Segment {
@@ -34,7 +35,7 @@ struct Segment {
     glm::vec2 direction() const { return end - start; }
 };
 
-bool testCollision(const Segment& a, const Segment& b, HitInfo& hit);
+bool testSegmentIntersect(const Segment& a, const Segment& b, HitInfo& hit);
 
 struct Particle {
     glm::vec2 position{
@@ -94,8 +95,20 @@ int main()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     std::vector<Particle> particles(100);
-    Segment fixedSegment(glm::vec2(-0.7f, 0.f), glm::vec2(0.7f, 0.f));
-    Segment mouseSegment(glm::vec2(0.f, -0.7f), gl::mouse_position());
+    Segment fixedSegment(glm::vec2(-0.8f, 0.3f), glm::vec2(0.4f, 0.7f));
+    Segment mouseSegment(glm::vec2(-.1f, -0.5f), glm::vec2(0.3f, 0.4f));
+    bool editStart = false;
+
+    auto camera = gl::Camera{};
+    gl::set_events_callbacks({
+        camera.events_callbacks(),
+        {
+            .on_mouse_pressed = [&](gl::MousePressedEvent const& e) {
+                std::cout << "Mouse pressed " << std::endl;
+                mouseSegment.start = gl::mouse_position();
+            },
+        },
+    });
 
     while (gl::window_is_open())
     {
@@ -106,7 +119,7 @@ int main()
 
         for (auto& particle : particles)
         {
-            particle.age += gl::delta_time_in_seconds();
+            // particle.age += gl::delta_time_in_seconds();
 
             auto forces = glm::vec2{0.f};
 
@@ -114,7 +127,7 @@ int main()
             // forces += glm::vec2{0.f, -1.f} * particle.mass;
 
             // Air friction
-            forces += -particle.velocity * 1.f;
+            // forces += -particle.velocity * 1.f;
 
             // Follow mouse
             // forces += (gl::mouse_position() - particle.position);
@@ -132,14 +145,17 @@ int main()
             utils::draw_disk(particle.position, particle.radius(), glm::vec4{particle.color(), 1.f});
 
         HitInfo hitInfo{};
-        bool hasHit = testCollision(fixedSegment, mouseSegment, hitInfo);
-        if (hasHit)
-            utils::draw_disk(hitInfo.position, 0.04f, glm::vec4{1.f, 0.f, 0.f, 1.f});
+        bool hasHit = testSegmentIntersect(fixedSegment, mouseSegment, hitInfo);
+        if (hasHit) {
+            utils::draw_line(hitInfo.position, hitInfo.position + hitInfo.normal * 0.1f, 0.01f, glm::vec4{1.f, 0.f, 0.f, 1.f});
+            glm::vec2 reflect = glm::reflect(mouseSegment.direction(),  glm::normalize(hitInfo.normal));
+            utils::draw_line(hitInfo.position, hitInfo.position +reflect * 2.f, 0.01f, glm::vec4{0.f, 1.f, 0.f, 1.f});
+        }
     }
 }
 
 
-bool testCollision(const Segment& a, const Segment& b, HitInfo& hit) {
+bool testSegmentIntersect(const Segment& a, const Segment& b, HitInfo& hit) {
     glm::vec2 d1 = a.direction();
     glm::vec2 d2 = b.direction();
     glm::mat2 matrice = glm::mat2(d1, -d2);
@@ -148,7 +164,12 @@ bool testCollision(const Segment& a, const Segment& b, HitInfo& hit) {
     glm::vec2 t = glm::inverse(matrice) * vector;
 
     if (t.x > 0.f && t.x < 1.f && t.y > 0.f && t.y < 1.f) {
+        float dx = a.end.x - a.start.x;
+        float dy = a.end.y - a.start.y;
+        glm::vec2 normal = glm::vec2(-dy, dx);
+
         hit.position = t.x * d1 + a.start;
+        hit.normal = normal;
         return true;
     }
 
