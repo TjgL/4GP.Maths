@@ -35,8 +35,6 @@ struct Segment {
     glm::vec2 direction() const { return end - start; }
 };
 
-bool testSegmentIntersect(const Segment& a, const Segment& b, HitInfo& hit);
-
 struct Particle {
     glm::vec2 position{
         utils::rand(-gl::window_aspect_ratio(), +gl::window_aspect_ratio()),
@@ -87,6 +85,8 @@ struct Particle {
     }
 };
 
+bool testSegmentIntersect(const Segment& a, const Segment& b, HitInfo& hit);
+
 int main()
 {
     gl::init("Particules!");
@@ -98,6 +98,8 @@ int main()
     Segment fixedSegment(glm::vec2(-0.8f, 0.3f), glm::vec2(0.4f, 0.7f));
     Segment mouseSegment(glm::vec2(-.1f, -0.5f), glm::vec2(0.3f, 0.4f));
     bool editStart = false;
+
+    std::vector<Segment*> segments({&fixedSegment, &mouseSegment});
 
     auto camera = gl::Camera{};
     gl::set_events_callbacks({
@@ -131,6 +133,15 @@ int main()
 
             // Follow mouse
             // forces += (gl::mouse_position() - particle.position);
+
+            for (auto const& segment : segments) {
+                HitInfo hitInfo{};
+                Segment movement{particle.position, particle.position + particle.velocity * gl::delta_time_in_seconds()};
+
+                if (testSegmentIntersect(*segment, movement, hitInfo)) {
+                    particle.velocity = glm::reflect(particle.velocity, glm::normalize(hitInfo.normal));
+                }
+            }
 
             particle.velocity += forces / particle.mass * gl::delta_time_in_seconds();
             particle.position += particle.velocity * gl::delta_time_in_seconds();
