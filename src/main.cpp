@@ -18,7 +18,6 @@ float easeInOut(float x, float power)
 
 struct HitInfo {
     glm::vec2 position;
-    glm::vec2 normal;
 };
 
 struct Segment {
@@ -35,7 +34,7 @@ struct Segment {
     glm::vec2 direction() const { return end - start; }
 };
 
-bool findCollision(Segment a, Segment b);
+bool testCollision(const Segment& a, const Segment& b, HitInfo& hit);
 
 struct Particle {
     glm::vec2 position{
@@ -98,9 +97,6 @@ int main()
     Segment fixedSegment(glm::vec2(-0.7f, 0.f), glm::vec2(0.7f, 0.f));
     Segment mouseSegment(glm::vec2(0.f, -0.7f), gl::mouse_position());
 
-    Particle hitPoint{};
-    hitPoint.position = mouseSegment.start;
-
     while (gl::window_is_open())
     {
         glClearColor(0.f, 0.f, 0.f, 1.f);
@@ -135,22 +131,26 @@ int main()
         for (auto const& particle : particles)
             utils::draw_disk(particle.position, particle.radius(), glm::vec4{particle.color(), 1.f});
 
-        // d1 = fixed
-        // d2 = mouse
-        glm::vec2 d1 = fixedSegment.direction();
-        glm::vec2 d2 = mouseSegment.direction();
-        glm::mat2 matrice = glm::mat2(d1, -d2);
-
-        glm::vec2 vector = mouseSegment.start - fixedSegment.start;
-        glm::vec2 t = glm::inverse(matrice) * vector;
-
-        hitPoint.position = t.x * d1 + fixedSegment.start;
-        if (t.x > 0.f && t.x < 1.f && t.y > 0.f && t.y < 1.f)
-            utils::draw_disk(hitPoint.position, hitPoint.radius(), glm::vec4{hitPoint.color(), 1.f});
+        HitInfo hitInfo{};
+        bool hasHit = testCollision(fixedSegment, mouseSegment, hitInfo);
+        if (hasHit)
+            utils::draw_disk(hitInfo.position, 0.04f, glm::vec4{1.f, 0.f, 0.f, 1.f});
     }
 }
 
 
-bool findCollision(const Segment& a, const Segment& b, const HitInfo& hit) {
-    return true;
+bool testCollision(const Segment& a, const Segment& b, HitInfo& hit) {
+    glm::vec2 d1 = a.direction();
+    glm::vec2 d2 = b.direction();
+    glm::mat2 matrice = glm::mat2(d1, -d2);
+
+    glm::vec2 vector = b.start - a.start;
+    glm::vec2 t = glm::inverse(matrice) * vector;
+
+    if (t.x > 0.f && t.x < 1.f && t.y > 0.f && t.y < 1.f) {
+        hit.position = t.x * d1 + a.start;
+        return true;
+    }
+
+    return false;
 }
