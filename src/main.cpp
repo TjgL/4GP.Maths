@@ -2,6 +2,8 @@
 #include "opengl-framework/opengl-framework.hpp"
 #include "utils.hpp"
 
+#include <iostream>
+
 float easeInOut(float x, float power)
 {
     if (x < 0.5)
@@ -13,6 +15,27 @@ float easeInOut(float x, float power)
         return 1 - 0.5 * pow(2 * (1 - x), power);
     }
 }
+
+struct HitInfo {
+    glm::vec2 position;
+    glm::vec2 normal;
+};
+
+struct Segment {
+    glm::vec2 start;
+    glm::vec2 end;
+
+    float width{0.01f};
+
+    glm::vec4 color = glm::vec4(1.f, 1.f, 1.f, 1.f);
+
+    Segment(glm::vec2 start, glm::vec2 end) : start(start), end(end) {
+    }
+
+    glm::vec2 direction() const { return end - start; }
+};
+
+bool findCollision(Segment a, Segment b);
 
 struct Particle {
     glm::vec2 position{
@@ -72,11 +95,18 @@ int main()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     std::vector<Particle> particles(100);
+    Segment fixedSegment(glm::vec2(-0.7f, 0.f), glm::vec2(0.7f, 0.f));
+    Segment mouseSegment(glm::vec2(0.f, -0.7f), gl::mouse_position());
+
+    Particle hitPoint{};
+    hitPoint.position = mouseSegment.start;
 
     while (gl::window_is_open())
     {
         glClearColor(0.f, 0.f, 0.f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        mouseSegment.end = gl::mouse_position();
 
         for (auto& particle : particles)
         {
@@ -99,7 +129,28 @@ int main()
 
         std::erase_if(particles, [&](Particle const& particle) { return particle.age > particle.lifespan; });
 
+        utils::draw_line(fixedSegment.start, fixedSegment.end, fixedSegment.width, fixedSegment.color);
+        utils::draw_line(mouseSegment.start, mouseSegment.end, mouseSegment.width, mouseSegment.color);
+
         for (auto const& particle : particles)
             utils::draw_disk(particle.position, particle.radius(), glm::vec4{particle.color(), 1.f});
+
+        // d1 = fixed
+        // d2 = mouse
+        glm::vec2 d1 = fixedSegment.direction();
+        glm::vec2 d2 = mouseSegment.direction();
+        glm::mat2 matrice = glm::mat2(d1, -d2);
+
+        glm::vec2 vector = mouseSegment.start - fixedSegment.start;
+        glm::vec2 t = glm::inverse(matrice) * vector;
+
+        hitPoint.position = t.x * d1 + fixedSegment.start;
+        if (t.x > 0.f && t.x < 1.f && t.y > 0.f && t.y < 1.f)
+            utils::draw_disk(hitPoint.position, hitPoint.radius(), glm::vec4{hitPoint.color(), 1.f});
     }
+}
+
+
+bool findCollision(const Segment& a, const Segment& b, const HitInfo& hit) {
+    return true;
 }
