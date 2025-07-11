@@ -73,7 +73,15 @@ int main()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-    std::vector<Particle> particles(100);
+    std::vector<Particle> particles(1000);
+
+    glm::vec2 planeOrigin(0.25f, -0.2f);
+    glm::vec2 planeXDir(0.35, 0);
+    glm::vec2 planeYDir(.75, .6);
+
+    for (auto& particle : particles) {
+        particle.position = planeOrigin + planeXDir * utils::rand(-1.f, +1.f) + planeYDir * utils::rand(-1.f, +1.f);
+    }
 
     while (gl::window_is_open())
     {
@@ -100,7 +108,7 @@ int main()
             // particle.position += particle.velocity * gl::delta_time_in_seconds();
         }
 
-        std::erase_if(particles, [&](Particle const& particle) { return particle.age > particle.lifespan; });
+        // std::erase_if(particles, [&](Particle const& particle) { return particle.age > particle.lifespan; });
 
         for (auto const& particle : particles)
             utils::draw_disk(particle.position, particle.radius(), glm::vec4{particle.color(), 1.f});
