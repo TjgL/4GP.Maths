@@ -47,6 +47,7 @@ struct Particle {
 
     float radius() const
     {
+        return 0.01f;
         return std::min(lifespan - age, 2.f) / 2.f * 0.03f;
     }
 
@@ -81,6 +82,14 @@ struct Plane {
     }
 };
 
+glm::vec2 getRandomPointInCircle(float radius, const Plane& plane, int depth = 0) {
+    glm::vec2 point = plane.randomPointInPlane();
+    if (glm::length(point - plane.origin) > radius) {
+        return getRandomPointInCircle(radius, plane, depth + 1);
+    }
+    return point;
+}
+
 int main()
 {
     gl::init("Particules!");
@@ -88,11 +97,11 @@ int main()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-    std::vector<Particle> particles(1000);
-    Plane plane;
+    std::vector<Particle> particles(10000);
+    Plane plane({0,0}, {0.5, 0}, {0, .5});
 
     for (auto& particle : particles) {
-        particle.position = plane.randomPointInPlane();
+        particle.position = getRandomPointInCircle(0.5f, plane);
     }
 
     while (gl::window_is_open())
