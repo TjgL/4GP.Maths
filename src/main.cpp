@@ -66,6 +66,21 @@ struct Particle {
     }
 };
 
+struct Plane {
+    glm::vec2 origin = glm::vec2(0.25f, -0.2f);
+    glm::vec2 xDir = glm::vec2(0.35, 0);
+    glm::vec2 yDir = glm::vec2(.75, .6);
+
+    Plane(glm::vec2 const& origin, glm::vec2 const& xDir, glm::vec2 const& yDir) :
+        origin(origin), xDir(xDir), yDir(yDir) {}
+
+    Plane() = default;
+
+    [[nodiscard]] glm::vec2 randomPointInPlane() const {
+        return origin + xDir * utils::rand(-1.f, +1.f) + yDir * utils::rand(-1.f, +1.f);
+    }
+};
+
 int main()
 {
     gl::init("Particules!");
@@ -74,13 +89,10 @@ int main()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     std::vector<Particle> particles(1000);
-
-    glm::vec2 planeOrigin(0.25f, -0.2f);
-    glm::vec2 planeXDir(0.35, 0);
-    glm::vec2 planeYDir(.75, .6);
+    Plane plane;
 
     for (auto& particle : particles) {
-        particle.position = planeOrigin + planeXDir * utils::rand(-1.f, +1.f) + planeYDir * utils::rand(-1.f, +1.f);
+        particle.position = plane.randomPointInPlane();
     }
 
     while (gl::window_is_open())
