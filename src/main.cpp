@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+#include "poissonDiscSampling.h"
+
 float easeInOut(float x, float power)
 {
     if (x < 0.5)
@@ -78,7 +80,7 @@ struct Plane {
     Plane() = default;
 
     [[nodiscard]] glm::vec2 randomPointInPlane() const {
-        return origin + xDir * utils::rand(-1.f, +1.f) + yDir * utils::rand(-1.f, +1.f);
+        return origin + xDir * utils::rand(-1.f, 1.f) + yDir * utils::rand(-1.f, 1.f);
     }
 };
 
@@ -97,11 +99,14 @@ int main()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-    std::vector<Particle> particles(10000);
-    Plane plane({0,0}, {0.5, 0}, {0, .5});
+    // std::vector<Particle> particles(10000);
+    // Plane plane;
+    // Plane plane({0,0}, {0.5, 0}, {0, .5});
 
-    for (auto& particle : particles) {
-        particle.position = getRandomPointInCircle(0.5f, plane);
+    std::vector<glm::vec2> points = poisson::generatePoints(1, glm::vec2(1, 1), 30);
+    std::vector<Particle> particles(points.size());
+    for (int i = 0; i < points.size(); i++) {
+        particles[i].position = points[i];
     }
 
     while (gl::window_is_open())
