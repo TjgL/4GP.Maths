@@ -10,4 +10,6 @@ namespace curve {
 
     glm::vec2 point_on_circle(float t);
     glm::vec2 point_on_heart(float t);
+
+    glm::vec2 bezier1(glm::vec2 a, glm::vec2 b, float t);
 }
