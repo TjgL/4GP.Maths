@@ -108,11 +108,6 @@ int main()
     for (int i = 0; i < particles.size(); ++i) {
         t += 1.f / particles.size();
         particles[i].position = curve::bezier3(start, end, ha, hb, t);
-
-        glm::vec2 previous = curve::bezier3(start, end, ha, hb, t - 0.001f);
-        glm::vec2 tangent = particles[i].position - previous;
-        glm::vec2 normal = {-tangent.y, tangent.x};
-        particles[i].velocity = glm::normalize(normal) * 0.1f;
     }
 
     while (gl::window_is_open())
@@ -122,18 +117,25 @@ int main()
 
         for (auto& particle : particles)
         {
+            float pointOnCurvePos = curve::gradient_descent([start, end, ha, hb](float t) {
+                return curve::bezier3_ber(start, end, ha, hb, t);
+            }, particle.position, 0.2f);
+
+            glm::vec2 previous = curve::bezier3(start, end, ha, hb, pointOnCurvePos - 0.001f);
+            glm::vec2 closest = curve::bezier3(start, end, ha, hb, pointOnCurvePos);
+            glm::vec2 tangent = closest - previous;
+            glm::vec2 normal = {-tangent.y, tangent.x};
+
+            glm::vec2 forces = glm::vec2{0.f, -1.f} * particle.mass;
+            forces += glm::normalize(normal) * 2.f;
+
+            particle.velocity += forces / particle.mass * gl::delta_time_in_seconds();
             particle.position += particle.velocity * gl::delta_time_in_seconds();
         }
 
         curve::draw_parametric([start, end, ha, hb](float t) {
             return curve::bezier3_ber(start, end, ha, hb, t);
         });
-
-        glm::vec2 result = curve::gradient_descent([start, end, ha, hb](float t) {
-            return curve::bezier3_ber(start, end, ha, hb, t);
-        }, gl::mouse_position(), 0.2f);
-
-        utils::draw_disk(result, 0.02, glm::vec4(1, 0, 0, 0.7));
 
         utils::draw_disk(start, 0.02, glm::vec4(0.5, 0, 1, 0.7));
         utils::draw_disk(end, 0.02, glm::vec4(0.5, 0, 1, 0.7));
