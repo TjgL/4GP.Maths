@@ -47,4 +47,11 @@ namespace curve {
     glm::vec2 bezier2_ber(const glm::vec2 a, const glm::vec2 b, const glm::vec2 handle, const float t) {
         return ((1 - t) * (1 - t)) * a + (2 * t * (1 - t)) * handle + (t * t) * b;
     }
+
+    glm::vec2 bezier3_ber(const glm::vec2 a, const glm::vec2 b, const glm::vec2 ha, const glm::vec2 hb, const float t) {
+        const glm::vec2 aToHb = bezier2_ber(a, hb, ha, t);
+        const glm::vec2 haToB = bezier2_ber(ha, b, hb, t);
+
+        return bezier1(aToHb, haToB, t);
+    }
 }
