@@ -104,6 +104,6 @@ int main()
         glClearColor(0.f, 0.f, 0.f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        curve::draw_parametric(curve::point_on_circle);
+        curve::draw_parametric(curve::point_on_heart);
     }
 }
