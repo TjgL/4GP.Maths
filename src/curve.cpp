@@ -54,4 +54,31 @@ namespace curve {
 
         return bezier1(aToHb, haToB, t);
     }
+
+    glm::vec2 get_derivative(float a, std::function<glm::vec2(float)> const &parametric) {
+        constexpr float h{0.001f};
+        return (parametric(a + h) - parametric(a)) / h;
+    }
+
+    glm::vec2 gradient_descent(std::function<glm::vec2(float)> const &parametric, glm::vec2 point, float start, float rate = 0.01f,
+                               int max_iter = 100, float tolerance = 0.0001f) {
+        float current = start;
+
+        for (int i = 0; i < max_iter; i++) {
+            glm::vec2 currentPoint = parametric(current);
+            glm::vec2 targetDir = currentPoint - point;
+
+            glm::vec2 derivative = curve::get_derivative(start, parametric);
+
+            float gradient = glm::dot(targetDir, derivative);
+
+            if (glm::abs(gradient) < tolerance)
+                break;
+
+            current -= rate * gradient;
+            current = glm::clamp(current, 0.f, 1.f);
+        }
+
+        return parametric(current);
+    }
 }

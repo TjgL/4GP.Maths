@@ -100,8 +100,8 @@ int main()
     std::vector<Particle> particles(100);
 
     glm::vec2 start{-.3f, -.3f};
-    glm::vec2 end{-0.2f, 0.5f};
-    glm::vec2 ha{-0.5, 0.2};
+    glm::vec2 end{0.5f, 0.5f};
+    glm::vec2 ha{-0.2, 0};
     glm::vec2 hb{0.5, -0.2};
 
     float t = 0;
@@ -128,6 +128,12 @@ int main()
         curve::draw_parametric([start, end, ha, hb](float t) {
             return curve::bezier3_ber(start, end, ha, hb, t);
         });
+
+        glm::vec2 result = curve::gradient_descent([start, end, ha, hb](float t) {
+            return curve::bezier3_ber(start, end, ha, hb, t);
+        }, gl::mouse_position(), 0.2f);
+
+        utils::draw_disk(result, 0.02, glm::vec4(1, 0, 0, 0.7));
 
         utils::draw_disk(start, 0.02, glm::vec4(0.5, 0, 1, 0.7));
         utils::draw_disk(end, 0.02, glm::vec4(0.5, 0, 1, 0.7));
