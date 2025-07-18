@@ -2,9 +2,6 @@
 #include "opengl-framework/opengl-framework.hpp"
 #include "utils.hpp"
 
-#include <iostream>
-
-#include "poissonDiscSampling.h"
 
 float easeInOut(float x, float power)
 {
@@ -99,15 +96,7 @@ int main()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-    // std::vector<Particle> particles(10000);
-    // Plane plane;
-    // Plane plane({0,0}, {0.5, 0}, {0, .5});
-
-    std::vector<glm::vec2> points = poisson::generatePoints(1, glm::vec2(1, 1), 30);
-    std::vector<Particle> particles(points.size());
-    for (int i = 0; i < points.size(); i++) {
-        particles[i].position = points[i];
-    }
+    std::vector<Particle> particles(10000);
 
     while (gl::window_is_open())
     {
