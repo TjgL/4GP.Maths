@@ -1,3 +1,4 @@
+#include "curve.h"
 #include "glm/ext/scalar_constants.hpp"
 #include "opengl-framework/opengl-framework.hpp"
 #include "utils.hpp"
@@ -103,29 +104,6 @@ int main()
         glClearColor(0.f, 0.f, 0.f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-
-        for (auto& particle : particles)
-        {
-            // particle.age += gl::delta_time_in_seconds();
-
-            // auto forces = glm::vec2{0.f};
-
-            // Gravity
-            // forces += glm::vec2{0.f, -1.f} * particle.mass;
-
-            // Air friction
-            // forces += -particle.velocity * 1.f;
-
-            // Follow mouse
-            // forces += (gl::mouse_position() - particle.position);
-
-            // particle.velocity += forces / particle.mass * gl::delta_time_in_seconds();
-            // particle.position += particle.velocity * gl::delta_time_in_seconds();
-        }
-
-        // std::erase_if(particles, [&](Particle const& particle) { return particle.age > particle.lifespan; });
-
-        for (auto const& particle : particles)
-            utils::draw_disk(particle.position, particle.radius(), glm::vec4{particle.color(), 1.f});
+        curve::draw_parametric(curve::point_on_circle);
     }
 }
