@@ -97,21 +97,27 @@ int main()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-    std::vector<Particle> particles(100);
+    std::vector<Particle> particles(10);
 
     glm::vec2 start{-.3f, -.3f};
     glm::vec2 end{-0.2f, 0.5f};
     glm::vec2 ha{-0.5, 0.2};
     glm::vec2 hb{0.5, -0.2};
 
-    for (int i = 0; i < particles.size(); ++i) {
-        particles[i].position = curve::bezier3(start, end, ha, hb, utils::rand(0.f, 1.f));
-    }
-
     while (gl::window_is_open())
     {
         glClearColor(0.f, 0.f, 0.f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        ha = gl::mouse_position();
+
+        {
+            float t = 0;
+            for (int i = 0; i < particles.size(); ++i) {
+                t += 1.f / particles.size();
+                particles[i].position = curve::bezier3(start, end, ha, hb, t);
+            }
+        }
 
         curve::draw_parametric([start, end, ha, hb](float t) {
             return curve::bezier3_ber(start, end, ha, hb, t);
