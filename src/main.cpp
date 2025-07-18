@@ -108,10 +108,11 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         curve::draw_parametric([start, end](float t) {
-            return curve::bezier1(start, end, t);
+            return curve::bezier2(start, end, gl::mouse_position(), t);
         });
 
         utils::draw_disk(start, 0.01, glm::vec4(0.5, 0, 1, 0.7));
         utils::draw_disk(end, 0.01, glm::vec4(0.5, 0, 1, 0.7));
+        utils::draw_disk(gl::mouse_position(), 0.01, glm::vec4(0.5, 0, 1, 0.7));
     }
 }
