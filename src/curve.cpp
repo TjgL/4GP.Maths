@@ -12,7 +12,7 @@ namespace curve {
 
         for (float t = 0; t < 1; t += 1.f / step) {
             glm::vec2 current = parametric(t);
-            utils::draw_line(previous, current, 0.01, glm::vec4(1, 0, 0, 1));
+            utils::draw_line(previous, current, 0.01, glm::vec4(0, 0, 1, 1));
             previous = current;
         }
     }

@@ -97,24 +97,32 @@ int main()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-    std::vector<Particle> particles(10000);
+    std::vector<Particle> particles(100);
 
     glm::vec2 start{-.3f, -.3f};
     glm::vec2 end{-0.2f, 0.5f};
+    glm::vec2 ha{-0.5, 0.2};
     glm::vec2 hb{0.5, -0.2};
+
+    for (int i = 0; i < particles.size(); ++i) {
+        particles[i].position = curve::bezier3(start, end, ha, hb, utils::rand(0.f, 1.f));
+    }
 
     while (gl::window_is_open())
     {
         glClearColor(0.f, 0.f, 0.f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        curve::draw_parametric([start, end, hb](float t) {
-            return curve::bezier3_ber(start, end, gl::mouse_position(), hb, t);
+        curve::draw_parametric([start, end, ha, hb](float t) {
+            return curve::bezier3_ber(start, end, ha, hb, t);
         });
 
-        utils::draw_disk(start, 0.01, glm::vec4(0.5, 0, 1, 0.7));
-        utils::draw_disk(end, 0.01, glm::vec4(0.5, 0, 1, 0.7));
-        utils::draw_disk(hb, 0.01, glm::vec4(0.5, 0, 1, 0.7));
-        utils::draw_disk(gl::mouse_position(), 0.01, glm::vec4(0.5, 0, 1, 0.7));
+        utils::draw_disk(start, 0.02, glm::vec4(0.5, 0, 1, 0.7));
+        utils::draw_disk(end, 0.02, glm::vec4(0.5, 0, 1, 0.7));
+        utils::draw_disk(hb, 0.02, glm::vec4(0.5, 0, 1, 0.7));
+        utils::draw_disk(ha, 0.02, glm::vec4(0.5, 0, 1, 0.7));
+
+        for (auto const& particle : particles)
+            utils::draw_disk(particle.position, particle.radius(), glm::vec4{particle.color(), 1.f});
     }
 }
