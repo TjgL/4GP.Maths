@@ -13,4 +13,5 @@ namespace curve {
 
     glm::vec2 bezier1(glm::vec2 a, glm::vec2 b, float t);
     glm::vec2 bezier2(const glm::vec2 a, const glm::vec2 b, const glm::vec2 handle, const float t);
+    glm::vec2 bezier3(const glm::vec2 a, const glm::vec2 b, const glm::vec2 ha, const glm::vec2 hb, const float t);
 }

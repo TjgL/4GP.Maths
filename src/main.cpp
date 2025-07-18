@@ -99,20 +99,22 @@ int main()
 
     std::vector<Particle> particles(10000);
 
-    glm::vec2 start{-0.7, 0.4};
-    glm::vec2 end{0.5, -0.2};
+    glm::vec2 start{-.3f, -.3f};
+    glm::vec2 end{-0.2f, 0.5f};
+    glm::vec2 hb{0.5, -0.2};
 
     while (gl::window_is_open())
     {
         glClearColor(0.f, 0.f, 0.f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        curve::draw_parametric([start, end](float t) {
-            return curve::bezier2(start, end, gl::mouse_position(), t);
+        curve::draw_parametric([start, end, hb](float t) {
+            return curve::bezier3(start, end, gl::mouse_position(), hb, t);
         });
 
         utils::draw_disk(start, 0.01, glm::vec4(0.5, 0, 1, 0.7));
         utils::draw_disk(end, 0.01, glm::vec4(0.5, 0, 1, 0.7));
+        utils::draw_disk(hb, 0.01, glm::vec4(0.5, 0, 1, 0.7));
         utils::draw_disk(gl::mouse_position(), 0.01, glm::vec4(0.5, 0, 1, 0.7));
     }
 }

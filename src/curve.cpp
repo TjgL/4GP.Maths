@@ -36,4 +36,11 @@ namespace curve {
 
         return bezier1(aToH, hToB, t);
     }
+
+    glm::vec2 bezier3(const glm::vec2 a, const glm::vec2 b, const glm::vec2 ha, const glm::vec2 hb, const float t) {
+        const glm::vec2 aToHb = bezier2(a, hb, ha, t);
+        const glm::vec2 haToB = bezier2(ha, b, hb, t);
+
+        return bezier1(aToHb, haToB, t);
+    }
 }
