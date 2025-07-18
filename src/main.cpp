@@ -97,26 +97,32 @@ int main()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-    std::vector<Particle> particles(10);
+    std::vector<Particle> particles(100);
 
     glm::vec2 start{-.3f, -.3f};
     glm::vec2 end{-0.2f, 0.5f};
     glm::vec2 ha{-0.5, 0.2};
     glm::vec2 hb{0.5, -0.2};
 
+    float t = 0;
+    for (int i = 0; i < particles.size(); ++i) {
+        t += 1.f / particles.size();
+        particles[i].position = curve::bezier3(start, end, ha, hb, t);
+
+        glm::vec2 previous = curve::bezier3(start, end, ha, hb, t - 0.001f);
+        glm::vec2 tangent = particles[i].position - previous;
+        glm::vec2 normal = {-tangent.y, tangent.x};
+        particles[i].velocity = glm::normalize(normal) * 0.1f;
+    }
+
     while (gl::window_is_open())
     {
         glClearColor(0.f, 0.f, 0.f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        ha = gl::mouse_position();
-
+        for (auto& particle : particles)
         {
-            float t = 0;
-            for (int i = 0; i < particles.size(); ++i) {
-                t += 1.f / particles.size();
-                particles[i].position = curve::bezier3(start, end, ha, hb, t);
-            }
+            particle.position += particle.velocity * gl::delta_time_in_seconds();
         }
 
         curve::draw_parametric([start, end, ha, hb](float t) {
